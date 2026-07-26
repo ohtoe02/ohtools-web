@@ -44,6 +44,8 @@ test("serves the Russian module reference and passes critical accessibility chec
   await expect(
     page.getByRole("heading", { name: /декларативные модули/i }),
   ).toBeVisible();
+  await expect(page.getByText("Предварительный контракт.")).toBeVisible();
+  await expect(page.getByText(/не является immutable release/i)).toBeVisible();
   await expect(page.getByRole("link", { name: /юнит systemd/i })).toBeVisible();
   const results = await new AxeBuilder({ page }).analyze();
   expect(
