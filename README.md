@@ -43,10 +43,11 @@ They are recreated from the signed release during build.
 ## Declarative schema status
 
 The module reference currently uses the approved `declarative/v1` contract
-preview. Production Pages deployment is gated by the
-`DECLARATIVE_SCHEMA_RELEASE_READY` repository variable until an immutable
-schema artifact URL and SHA-256 are published by `ohtools-plugins` and pinned
-in this repository.
+preview and is labeled accordingly on every module index. It is not the
+immutable schema v1 release. Promotion to the authoritative reference is gated
+by the `DECLARATIVE_SCHEMA_RELEASE_READY` repository variable until an
+immutable schema artifact URL and SHA-256 are published by `ohtools-plugins`
+and pinned in this repository.
 
 ## Deployment
 

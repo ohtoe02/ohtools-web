@@ -23,12 +23,15 @@ env:
 
 jobs:
   build:
-    if: vars.DECLARATIVE_SCHEMA_RELEASE_READY == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Require immutable declarative schema release
+      - name: Record declarative contract preview
+        if: vars.DECLARATIVE_SCHEMA_RELEASE_READY != 'true'
+        run: echo "::notice::Publishing the explicitly labeled declarative contract preview."
+      - name: Validate immutable declarative schema release
+        if: vars.DECLARATIVE_SCHEMA_RELEASE_READY == 'true'
         run: |
           corepack enable
           pnpm install --frozen-lockfile
@@ -41,7 +44,6 @@ jobs:
           build-cmd: pnpm sync:catalog && pnpm astro build
 
   deploy:
-    if: vars.DECLARATIVE_SCHEMA_RELEASE_READY == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
