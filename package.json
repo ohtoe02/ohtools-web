@@ -18,7 +18,7 @@
     "astro": "astro",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "astro check",
+    "typecheck": "pnpm sync:catalog && astro check",
     "format:check": "prettier --check .",
     "sync:catalog": "tsx scripts/sync-catalog.ts",
     "test:e2e": "playwright test",
