@@ -43,4 +43,3 @@ The repository embeds only the catalog public verification key.
 The first release excludes a visual YAML editor, plugin installation from the
 browser, authentication, draft plugin discovery, custom domains, and runtime
 services.
-

@@ -1,0 +1,122 @@
+---
+import type { DeclarativeModuleView } from '../lib/declarative/reference';
+import type { Locale } from '../lib/catalog/catalog';
+
+interface Props {
+	locale: Locale;
+	modules: DeclarativeModuleView[];
+}
+
+const { locale, modules } = Astro.props;
+const isRussian = locale === 'ru';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const localePrefix = isRussian ? '/ru' : '';
+const path = (value: string) => `${base}${localePrefix}${value}`;
+const categories = [...new Set(modules.map((module) => module.category))];
+---
+
+<header>
+	<p class="portal-kicker">{isRussian ? 'Schema-driven reference' : 'Schema-driven reference'}</p>
+	<p class="portal-lede">
+		{
+			isRussian
+				? 'Строгие блоки описывают желаемое состояние без shell, произвольного argv, eval, loops или inline secrets.'
+				: 'Strict building blocks describe desired state without shell, arbitrary argv, eval, loops, or inline secrets.'
+		}
+	</p>
+</header>
+
+<aside class="preview-notice">
+	<strong>{isRussian ? 'Contract preview.' : 'Contract preview.'}</strong>
+	{
+		isRussian
+			? ' Страницы готовы к schema v1, но immutable release toolchain ещё не опубликован. Production deploy заблокирован до закрепления URL и SHA-256.'
+			: ' These pages are ready for schema v1, but the immutable toolchain release is not published yet. Production deploy remains blocked until its URL and SHA-256 are pinned.'
+	}
+</aside>
+
+<div class="portal-filter" data-module-filter>
+	<label class="sr-only" for="module-filter">
+		{isRussian ? 'Фильтр модулей' : 'Filter modules'}
+	</label>
+	<input
+		id="module-filter"
+		type="search"
+		placeholder={isRussian ? 'Имя, категория или поле…' : 'Name, category, or field…'}
+		aria-label={isRussian ? 'Фильтр модулей' : 'Filter modules'}
+	/>
+	<select aria-label={isRussian ? 'Категория модуля' : 'Module category'}>
+		<option value="">{isRussian ? 'Все категории' : 'All categories'}</option>
+		{categories.map((category) => <option value={category}>{category}</option>)}
+	</select>
+</div>
+
+<div class="portal-grid" data-module-grid>
+	{
+		modules.map((module, index) => {
+			const copy = module.copy[locale];
+			return (
+				<a
+					class="portal-card"
+					data-index={String(index + 1).padStart(2, '0')}
+					data-module-card
+					data-category={module.category}
+					data-search={[
+						module.id,
+						module.category,
+						copy.title,
+						copy.summary,
+						...module.fields.map((field) => field.name),
+					]
+						.join(' ')
+						.toLowerCase()}
+					href={path(`/declarative/${module.id}/`)}
+				>
+					<h2>{copy.title}</h2>
+					<p>{copy.summary}</p>
+					<footer>
+						<span>{module.category}</span>
+						<span>{module.safety} →</span>
+					</footer>
+				</a>
+			);
+		})
+	}
+</div>
+
+<p hidden data-empty-state>
+	{isRussian ? 'Подходящих модулей нет.' : 'No modules match these filters.'}
+</p>
+
+<script>
+	for (const root of document.querySelectorAll('[data-module-filter]')) {
+		const input = root.querySelector('input[type="search"]');
+		const select = root.querySelector('select');
+		const grid = root.nextElementSibling;
+		const empty = grid?.nextElementSibling;
+		if (
+			!(input instanceof HTMLInputElement) ||
+			!(select instanceof HTMLSelectElement) ||
+			!(grid instanceof HTMLElement)
+		)
+			continue;
+		const cards = [...grid.querySelectorAll('[data-module-card]')];
+		const update = () => {
+			const query = input.value.trim().toLowerCase();
+			const category = select.value;
+			let visible = 0;
+			for (const card of cards) {
+				const matchesQuery =
+					!query || (card.getAttribute('data-search') ?? '').includes(query);
+				const matchesCategory =
+					!category || card.getAttribute('data-category') === category;
+				const matches = matchesQuery && matchesCategory;
+				if (card instanceof HTMLElement) card.hidden = !matches;
+				if (matches) visible += 1;
+			}
+			if (empty instanceof HTMLElement) empty.hidden = visible !== 0;
+		};
+		input.addEventListener('input', update);
+		select.addEventListener('change', update);
+	}
+</script>

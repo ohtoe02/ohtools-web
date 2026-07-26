@@ -1,0 +1,53 @@
+name: deploy-pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: "1"
+  CI: "true"
+  SITE_BASE: /ohtools-web
+
+jobs:
+  build:
+    if: vars.DECLARATIVE_SCHEMA_RELEASE_READY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Require immutable declarative schema release
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm release:check
+      - name: Build and upload Pages artifact
+        uses: withastro/action@e84f40bd8d2caa9e768ec82ad30dd81f0b280853 # v6
+        with:
+          node-version: 24
+          package-manager: pnpm@10.11.1
+          build-cmd: pnpm sync:catalog && pnpm astro build
+
+  deploy:
+    if: vars.DECLARATIVE_SCHEMA_RELEASE_READY == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

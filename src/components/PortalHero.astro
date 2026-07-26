@@ -1,0 +1,107 @@
+---
+import catalogData from '../generated/catalog.json';
+import { declarativeModules } from '../data/declarative';
+import type { Locale } from '../lib/catalog/catalog';
+
+interface Props {
+	locale: Locale;
+}
+
+const { locale } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const localePrefix = locale === 'ru' ? '/ru' : '';
+const path = (value: string) => `${base}${localePrefix}${value}`;
+const pluginCount = catalogData.plugins.length;
+const moduleCount = declarativeModules.length;
+const isRussian = locale === 'ru';
+---
+
+<section class="portal-hero">
+	<div>
+		<p class="portal-kicker">
+			{isRussian ? 'Полевой справочник • protocol v1' : 'Field manual • protocol v1'}
+		</p>
+		<h1>
+			{isRussian ? 'Операции без догадок.' : 'Operations without guesswork.'}
+		</h1>
+		<p class="portal-lede">
+			{
+				isRussian
+					? 'Документация, безопасные декларативные блоки и криптографически проверенный каталог плагинов для Debian и Ubuntu.'
+					: 'Documentation, constrained declarative building blocks, and a cryptographically verified plugin catalog for Debian and Ubuntu.'
+			}
+		</p>
+		<div class="portal-actions">
+			<a class="portal-button" href={path('/plugins/')}>
+				{isRussian ? `Смотреть ${pluginCount} плагина` : `Browse ${pluginCount} plugins`}
+			</a>
+			<a class="portal-button secondary" href={path('/declarative/')}>
+				{isRussian ? `Изучить ${moduleCount} модулей` : `Explore ${moduleCount} modules`}
+			</a>
+		</div>
+	</div>
+	<dl class="trust-ledger" aria-label={isRussian ? 'Состояние доверия' : 'Trust state'}>
+		<dt>{isRussian ? 'Снимок каталога' : 'Catalog snapshot'}</dt>
+		<dd>Catalog sequence {catalogData.state.sequence}</dd>
+		<dt>{isRussian ? 'Проверенный ключ' : 'Verified key'}</dt>
+		<dd>{catalogData.state.verified_key_id}</dd>
+		<dt>{isRussian ? 'Действует до' : 'Valid until'}</dt>
+		<dd>
+			{new Intl.DateTimeFormat(isRussian ? 'ru-RU' : 'en-GB', {
+				dateStyle: 'medium',
+				timeZone: 'UTC',
+			}).format(new Date(catalogData.state.expires_at))}
+		</dd>
+		<dt>{isRussian ? 'Модель выполнения' : 'Execution model'}</dt>
+		<dd>{isRussian ? 'Статический сайт • без backend' : 'Static site • no backend'}</dd>
+	</dl>
+</section>
+
+<section class="portal-section" aria-labelledby="portal-map-heading">
+	<header class="portal-section-head">
+		<h2 id="portal-map-heading">{isRussian ? 'Один путь к истине.' : 'One path to truth.'}</h2>
+		<p>
+			{
+				isRussian
+					? 'Стабильные контракты остаются в центре: сайт объясняет их, но не подменяет host, policy или подпись каталога.'
+					: 'Stable contracts stay at the center: the portal explains them without replacing the host, policy, or catalog signature.'
+			}
+		</p>
+	</header>
+	<div class="portal-grid">
+		<a class="portal-card" data-index="01" href={path('/docs/')}>
+			<h3>{isRussian ? 'Документация' : 'Documentation'}</h3>
+			<p>
+				{
+					isRussian
+						? 'Установка, CLI, политика, протокол и модель результата.'
+						: 'Installation, CLI, policy, protocol, and Result model.'
+				}
+			</p>
+			<footer><span>MDX / EN+RU</span><span>→</span></footer>
+		</a>
+		<a class="portal-card" data-index="02" href={path('/declarative/')}>
+			<h3>{isRussian ? 'Декларативные модули' : 'Declarative modules'}</h3>
+			<p>
+				{
+					isRussian
+						? 'Поля, ограничения, safety-класс и готовые YAML-примеры.'
+						: 'Fields, constraints, safety class, and ready YAML examples.'
+				}
+			</p>
+			<footer><span>{moduleCount} modules</span><span>→</span></footer>
+		</a>
+		<a class="portal-card" data-index="03" href={path('/plugins/')}>
+			<h3>{isRussian ? 'Каталог плагинов' : 'Plugin catalog'}</h3>
+			<p>
+				{
+					isRussian
+						? 'Только подписанные версии, manifest и точные артефакты.'
+						: 'Signed versions only, with manifest and exact asset identity.'
+				}
+			</p>
+			<footer><span>sequence {catalogData.state.sequence}</span><span>→</span></footer>
+		</a>
+	</div>
+</section>
+

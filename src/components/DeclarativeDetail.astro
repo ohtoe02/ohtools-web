@@ -1,0 +1,103 @@
+---
+import type { Locale } from '../lib/catalog/catalog';
+import type { DeclarativeModuleView } from '../lib/declarative/reference';
+
+interface Props {
+	locale: Locale;
+	module: DeclarativeModuleView;
+}
+
+const { locale, module } = Astro.props;
+const isRussian = locale === 'ru';
+const copy = module.copy[locale];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const localePrefix = isRussian ? '/ru' : '';
+const path = (value: string) => `${base}${localePrefix}${value}`;
+---
+
+<p class="portal-kicker">
+	<a href={path('/declarative/')}>{isRussian ? 'Модули' : 'Modules'}</a> / {module.id}
+</p>
+<div class="detail-grid">
+	<main>
+		<p class="portal-lede">{copy.summary}</p>
+		<div class="trust-bar">
+			<span class:list={['trust-chip', module.safety === 'read-only' ? 'good' : 'warning']}>
+				{module.safety}
+			</span>
+			<span class="trust-chip">{module.category}</span>
+			<span class="trust-chip">{module.fields.length} fields</span>
+		</div>
+
+		<h2>{isRussian ? 'Пример YAML' : 'YAML example'}</h2>
+		<div class="code-rack">
+			<pre><code>{copy.exampleYaml}</code></pre>
+			<button
+				class="copy-button"
+				type="button"
+				data-copy={copy.exampleYaml}
+				aria-label={isRussian ? 'Копировать YAML' : 'Copy YAML'}
+			>
+				{isRussian ? 'Копировать' : 'Copy'}
+			</button>
+		</div>
+
+		<h2>{isRussian ? 'Поля схемы' : 'Schema fields'}</h2>
+		<table class="field-table">
+			<thead>
+				<tr>
+					<th>{isRussian ? 'Поле' : 'Field'}</th>
+					<th>{isRussian ? 'Тип' : 'Type'}</th>
+					<th>{isRussian ? 'Обязательно' : 'Required'}</th>
+					<th>{isRussian ? 'Ограничение' : 'Constraint'}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{
+					module.fields.map((field) => (
+						<tr>
+							<td><code>{field.name}</code></td>
+							<td>{field.type}</td>
+							<td>{field.required ? (isRussian ? 'да' : 'yes') : '—'}</td>
+							<td>
+								{field.description}
+								{field.values.length > 0 && (
+									<>
+										<br />
+										<code>{field.values.join(' | ')}</code>
+									</>
+								)}
+							</td>
+						</tr>
+					))
+				}
+			</tbody>
+		</table>
+	</main>
+	<aside class="detail-aside">
+		<dl>
+			<dt>Module ID</dt>
+			<dd><code>{module.id}</code></dd>
+			<dt>{isRussian ? 'Категория' : 'Category'}</dt>
+			<dd>{module.category}</dd>
+			<dt>Safety</dt>
+			<dd>{module.safety}</dd>
+			<dt>{isRussian ? 'Источник' : 'Source'}</dt>
+			<dd>declarative/v1 contract preview</dd>
+		</dl>
+	</aside>
+</div>
+
+<script>
+	for (const button of document.querySelectorAll('[data-copy]')) {
+		button.addEventListener('click', async () => {
+			if (!(button instanceof HTMLButtonElement)) return;
+			await navigator.clipboard.writeText(button.dataset.copy ?? '');
+			const previous = button.textContent;
+			button.textContent = 'Copied';
+			window.setTimeout(() => {
+				button.textContent = previous;
+			}, 1200);
+		});
+	}
+</script>

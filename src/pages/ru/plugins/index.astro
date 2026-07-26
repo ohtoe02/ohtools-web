@@ -1,0 +1,21 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import CatalogView from '../../../components/CatalogView.astro';
+import catalogData from '../../../generated/catalog.json';
+import type { CatalogPluginView } from '../../../lib/catalog/catalog';
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Проверенный каталог плагинов',
+		description: 'Устанавливаемые плагины из подписанного каталога ohtools.',
+		template: 'splash',
+		pagefind: true,
+	}}
+>
+	<CatalogView
+		locale="ru"
+		plugins={catalogData.plugins as CatalogPluginView[]}
+		state={catalogData.state}
+	/>
+</StarlightPage>

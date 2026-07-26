@@ -1,0 +1,8 @@
+dist/
+node_modules/
+src/generated/
+public/data/catalog-state.json
+test-results/
+playwright-report/
+.astro/
+

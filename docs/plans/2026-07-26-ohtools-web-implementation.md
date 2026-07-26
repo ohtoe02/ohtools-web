@@ -23,4 +23,3 @@ Playwright, Pagefind, AJV, and Node.js Ed25519 verification.
 7. Verify the current signed catalog, build the complete site, publish the
    repository, enable protections and Pages, then link the portal from the
    project repositories.
-

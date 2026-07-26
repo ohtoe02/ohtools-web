@@ -1,0 +1,119 @@
+---
+import type { CatalogPluginView, Locale } from '../lib/catalog/catalog';
+
+interface CatalogState {
+	sequence: number;
+	index_sha256: string;
+	verified_key_id: string;
+	generated_at: string;
+	expires_at: string;
+}
+
+interface Props {
+	locale: Locale;
+	plugins: CatalogPluginView[];
+	state: CatalogState;
+}
+
+const { locale, plugins, state } = Astro.props;
+const isRussian = locale === 'ru';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const localePrefix = isRussian ? '/ru' : '';
+const path = (value: string) => `${base}${localePrefix}${value}`;
+const dateFormat = new Intl.DateTimeFormat(isRussian ? 'ru-RU' : 'en-GB', {
+	dateStyle: 'medium',
+	timeZone: 'UTC',
+});
+---
+
+<header>
+	<p class="portal-kicker">{isRussian ? 'Подписанный snapshot' : 'Signed snapshot'}</p>
+	<p class="portal-lede">
+		{
+			isRussian
+				? 'Здесь показаны только версии из проверенного index-v1.json. Сайт не ищет плагины по репозиториям и не исполняет binaries.'
+				: 'Only versions from the verified index-v1.json appear here. The portal does not crawl repositories or execute binaries.'
+		}
+	</p>
+</header>
+
+<div class="trust-bar" aria-label={isRussian ? 'Метаданные snapshot' : 'Snapshot metadata'}>
+	<span class="trust-chip good">✓ Ed25519</span>
+	<span class="trust-chip">sequence {state.sequence}</span>
+	<span class="trust-chip">key {state.verified_key_id}</span>
+	<span class="trust-chip">
+		{isRussian ? 'до' : 'expires'} {dateFormat.format(new Date(state.expires_at))}
+	</span>
+</div>
+
+<div class="portal-filter" data-catalog-filter>
+	<label class="sr-only" for="plugin-filter">
+		{isRussian ? 'Фильтр плагинов' : 'Filter plugins'}
+	</label>
+	<input
+		id="plugin-filter"
+		type="search"
+		placeholder={isRussian ? 'Имя, команда или описание…' : 'Name, command, or description…'}
+		aria-label={isRussian ? 'Фильтр плагинов' : 'Filter plugins'}
+	/>
+	<span class="trust-chip" data-result-count>{plugins.length} {isRussian ? 'плагина' : 'plugins'}</span>
+</div>
+
+<div class="portal-grid" data-catalog-grid>
+	{
+		plugins.map((plugin, index) => (
+			<a
+				class="portal-card"
+				data-index={String(index + 1).padStart(2, '0')}
+				data-catalog-card
+				data-search={[
+					plugin.name,
+					plugin.description,
+					...plugin.commands.flatMap((command) => command.path),
+				]
+					.join(' ')
+					.toLowerCase()}
+				href={path(`/plugins/${plugin.name}/`)}
+			>
+				<h2>{plugin.name}</h2>
+				<p>{plugin.description}</p>
+				<div class="catalog-command-list" aria-label={isRussian ? 'Команды' : 'Commands'}>
+					{plugin.commands.slice(0, 4).map((command) => (
+						<code>{command.path.join(' ')}</code>
+					))}
+				</div>
+				<footer>
+					<span>v{plugin.latest?.version ?? '—'}</span>
+					<span>host ≥ {plugin.latest?.minimum_ohtools_version ?? '—'} →</span>
+				</footer>
+			</a>
+		))
+	}
+</div>
+
+<p hidden data-empty-state>
+	{isRussian ? 'Подходящих плагинов нет.' : 'No plugins match this filter.'}
+</p>
+
+<script>
+	for (const root of document.querySelectorAll('[data-catalog-filter]')) {
+		const input = root.querySelector('input[type="search"]');
+		const grid = root.nextElementSibling;
+		const count = root.querySelector('[data-result-count]');
+		const empty = grid?.nextElementSibling;
+		if (!(input instanceof HTMLInputElement) || !(grid instanceof HTMLElement)) continue;
+		const cards = [...grid.querySelectorAll('[data-catalog-card]')];
+		const update = () => {
+			const query = input.value.trim().toLowerCase();
+			let visible = 0;
+			for (const card of cards) {
+				const matches = !query || (card.getAttribute('data-search') ?? '').includes(query);
+				if (card instanceof HTMLElement) card.hidden = !matches;
+				if (matches) visible += 1;
+			}
+			if (count) count.textContent = String(visible);
+			if (empty instanceof HTMLElement) empty.hidden = visible !== 0;
+		};
+		input.addEventListener('input', update);
+	}
+</script>

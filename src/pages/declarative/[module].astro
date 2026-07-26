@@ -1,0 +1,26 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import DeclarativeDetail from '../../components/DeclarativeDetail.astro';
+import { declarativeModules } from '../../data/declarative';
+import type { DeclarativeModuleView } from '../../lib/declarative/reference';
+
+export function getStaticPaths() {
+	return declarativeModules.map((moduleEntry) => ({
+		params: { module: moduleEntry.id },
+		props: { moduleEntry },
+	}));
+}
+
+const { moduleEntry } = Astro.props as { moduleEntry: DeclarativeModuleView };
+---
+
+<StarlightPage
+	frontmatter={{
+		title: moduleEntry.copy.en.title,
+		description: moduleEntry.copy.en.summary,
+		template: 'splash',
+		pagefind: true,
+	}}
+>
+	<DeclarativeDetail locale="en" module={moduleEntry} />
+</StarlightPage>

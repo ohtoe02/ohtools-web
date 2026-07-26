@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ohtools.dev/schema/declarative/v1",
+  "title": "ohtools declarative plugin v1 contract preview",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {},
+  "$defs": {
+    "modules": {
+      "oneOf": [
+        { "$ref": "#/$defs/os-fact" },
+        { "$ref": "#/$defs/file-fact" },
+        { "$ref": "#/$defs/assert" },
+        { "$ref": "#/$defs/directory" },
+        { "$ref": "#/$defs/file" },
+        { "$ref": "#/$defs/apt" },
+        { "$ref": "#/$defs/systemd" },
+        { "$ref": "#/$defs/sysctl" }
+      ]
+    },
+    "os-fact": {
+      "title": "os-fact",
+      "description": "Collect bounded operating-system facts for later assertions.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "facts",
+      "x-ohtools-safety": "read-only",
+      "required": ["register"],
+      "properties": {
+        "register": {
+          "type": "string",
+          "description": "Local fact name used by later assertions."
+        }
+      }
+    },
+    "file-fact": {
+      "title": "file-fact",
+      "description": "Inspect a confined absolute path without following symlinks.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "facts",
+      "x-ohtools-safety": "read-only",
+      "required": ["path", "register"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Absolute path to inspect."
+        },
+        "register": {
+          "type": "string",
+          "description": "Local fact name used by later assertions."
+        }
+      }
+    },
+    "assert": {
+      "title": "assert",
+      "description": "Compare a collected scalar fact with an expected value.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "assertions",
+      "x-ohtools-safety": "read-only",
+      "required": ["fact", "equals", "message"],
+      "properties": {
+        "fact": {
+          "type": "string",
+          "description": "Previously registered fact name."
+        },
+        "equals": {
+          "type": "string",
+          "description": "Expected bounded scalar value."
+        },
+        "message": {
+          "type": "string",
+          "description": "Operator-facing failure message."
+        }
+      }
+    },
+    "directory": {
+      "title": "directory",
+      "description": "Converge a directory and its ownership or mode.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "files",
+      "x-ohtools-safety": "mutating",
+      "required": ["path", "state"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Absolute managed path."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["present", "absent"],
+          "description": "Desired directory state."
+        },
+        "owner": {
+          "type": "string",
+          "description": "Required owner name."
+        },
+        "group": {
+          "type": "string",
+          "description": "Required group name."
+        },
+        "mode": {
+          "type": "string",
+          "description": "Four-digit octal mode."
+        }
+      }
+    },
+    "file": {
+      "title": "file",
+      "description": "Converge a file from a sealed asset or restricted scalar template.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "files",
+      "x-ohtools-safety": "mutating",
+      "required": ["path", "state"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Absolute managed path."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["present", "absent"],
+          "description": "Desired file state."
+        },
+        "asset": {
+          "type": "string",
+          "description": "Path to a sealed project asset."
+        },
+        "template": {
+          "type": "string",
+          "description": "Restricted scalar template source."
+        },
+        "owner": {
+          "type": "string",
+          "description": "Required owner name."
+        },
+        "group": {
+          "type": "string",
+          "description": "Required group name."
+        },
+        "mode": {
+          "type": "string",
+          "description": "Four-digit octal mode."
+        },
+        "notify": {
+          "type": "array",
+          "description": "Handler names notified after a verified change."
+        }
+      }
+    },
+    "apt": {
+      "title": "apt",
+      "description": "Converge Debian package state through trusted apt tooling.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "packages",
+      "x-ohtools-safety": "mutating",
+      "required": ["packages", "state"],
+      "properties": {
+        "packages": {
+          "type": "array",
+          "description": "Bounded list of package names."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["present", "absent"],
+          "description": "Desired package state."
+        }
+      }
+    },
+    "systemd": {
+      "title": "systemd",
+      "description": "Converge systemd active and enabled state.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "services",
+      "x-ohtools-safety": "mutating",
+      "required": ["unit"],
+      "properties": {
+        "unit": {
+          "type": "string",
+          "description": "Explicit systemd unit name."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["started", "stopped"],
+          "description": "Desired active state."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Desired boot enablement."
+        },
+        "notify": {
+          "type": "array",
+          "description": "Handler names notified after a verified change."
+        }
+      }
+    },
+    "sysctl": {
+      "title": "sysctl",
+      "description": "Converge a kernel setting through an ohtools-owned drop-in.",
+      "type": "object",
+      "additionalProperties": false,
+      "x-ohtools-category": "kernel",
+      "x-ohtools-safety": "mutating",
+      "required": ["name", "value"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Kernel parameter name."
+        },
+        "value": {
+          "type": "string",
+          "description": "Bounded scalar value."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["present", "absent"],
+          "description": "Desired drop-in state."
+        }
+      }
+    }
+  }
+}

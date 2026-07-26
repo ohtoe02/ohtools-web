@@ -1,0 +1,26 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import PluginDetail from '../../../components/PluginDetail.astro';
+import catalogData from '../../../generated/catalog.json';
+import type { CatalogPluginView } from '../../../lib/catalog/catalog';
+
+export function getStaticPaths() {
+	return (catalogData.plugins as CatalogPluginView[]).map((plugin) => ({
+		params: { name: plugin.name },
+		props: { plugin },
+	}));
+}
+
+const { plugin } = Astro.props as { plugin: CatalogPluginView };
+---
+
+<StarlightPage
+	frontmatter={{
+		title: plugin.name,
+		description: plugin.description,
+		template: 'splash',
+		pagefind: true,
+	}}
+>
+	<PluginDetail locale="ru" plugin={plugin} />
+</StarlightPage>

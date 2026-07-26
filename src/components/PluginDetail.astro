@@ -1,0 +1,148 @@
+---
+import type { CatalogPluginView, Locale } from '../lib/catalog/catalog';
+
+interface Props {
+	locale: Locale;
+	plugin: CatalogPluginView;
+}
+
+const { locale, plugin } = Astro.props;
+const isRussian = locale === 'ru';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const localePrefix = isRussian ? '/ru' : '';
+const path = (value: string) => `${base}${localePrefix}${value}`;
+const dateFormat = new Intl.DateTimeFormat(isRussian ? 'ru-RU' : 'en-GB', {
+	dateStyle: 'medium',
+	timeZone: 'UTC',
+});
+const latest = plugin.latest;
+---
+
+<p class="portal-kicker">
+	<a href={path('/plugins/')}>{isRussian ? 'Каталог' : 'Catalog'}</a> / {plugin.name}
+</p>
+<div class="detail-grid">
+	<main>
+		<p class="portal-lede">{plugin.description}</p>
+		<div class="trust-bar">
+			<span class="trust-chip good">{isRussian ? 'Подписан' : 'Signed'}</span>
+			<span class="trust-chip">protocol v1</span>
+			<span class="trust-chip">linux/amd64</span>
+		</div>
+
+		{
+			plugin.installCommand && (
+				<>
+					<h2>{isRussian ? 'Установка' : 'Install'}</h2>
+					<div class="code-rack">
+						<pre><code>{plugin.installCommand}</code></pre>
+						<button
+							class="copy-button"
+							type="button"
+							data-copy={plugin.installCommand}
+							aria-label={isRussian ? 'Копировать команду установки' : 'Copy install command'}
+						>
+							{isRussian ? 'Копировать' : 'Copy'}
+						</button>
+					</div>
+				</>
+			)
+		}
+
+		<h2>{isRussian ? 'Команды manifest' : 'Manifest commands'}</h2>
+		<table class="command-table">
+			<thead>
+				<tr>
+					<th>{isRussian ? 'Путь' : 'Path'}</th>
+					<th>{isRussian ? 'Категория' : 'Category'}</th>
+					<th>{isRussian ? 'Поведение' : 'Behavior'}</th>
+					<th>Safety</th>
+				</tr>
+			</thead>
+			<tbody>
+				{
+					plugin.commands.map((command) => (
+						<tr>
+							<td><code>{command.path.join(' ')}</code></td>
+							<td>{command.category}</td>
+							<td>{command.short}</td>
+							<td>
+								{[
+									command.requires_root && 'root',
+									command.supports_dry_run && 'dry-run',
+									command.requires_confirmation && 'confirm',
+								]
+									.filter(Boolean)
+									.join(' · ') || 'read-only'}
+							</td>
+						</tr>
+					))
+				}
+			</tbody>
+		</table>
+
+		<h2>{isRussian ? 'История версий' : 'Version history'}</h2>
+		<table class="version-table">
+			<thead>
+				<tr>
+					<th>{isRussian ? 'Версия' : 'Version'}</th>
+					<th>{isRussian ? 'Опубликована' : 'Published'}</th>
+					<th>{isRussian ? 'Минимальный host' : 'Minimum host'}</th>
+					<th>{isRussian ? 'Артефакт' : 'Asset'}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{
+					plugin.versions.map((version) => (
+						<tr>
+							<td>
+								<span class="plugin-version">v{version.version}</span>
+								{version.yanked && <span class="trust-chip warning">yanked</span>}
+							</td>
+							<td>{dateFormat.format(new Date(version.published_at))}</td>
+							<td>v{version.minimum_ohtools_version}</td>
+							<td>
+								{(version.asset.size_bytes / 1024 / 1024).toFixed(2)} MiB<br />
+								<code title={version.asset.sha256}>{version.asset.sha256.slice(0, 12)}…</code>
+							</td>
+						</tr>
+					))
+				}
+			</tbody>
+		</table>
+	</main>
+	<aside class="detail-aside" aria-label={isRussian ? 'Метаданные плагина' : 'Plugin metadata'}>
+		<dl>
+			<dt>{isRussian ? 'Текущая версия' : 'Current version'}</dt>
+			<dd>{latest ? `v${latest.version}` : '—'}</dd>
+			<dt>{isRussian ? 'Минимальный host' : 'Minimum host'}</dt>
+			<dd>{latest ? `v${latest.minimum_ohtools_version}` : '—'}</dd>
+			<dt>{isRussian ? 'Команд' : 'Commands'}</dt>
+			<dd>{plugin.commands.length}</dd>
+			<dt>SHA-256</dt>
+			<dd><code>{latest?.asset.sha256 ?? '—'}</code></dd>
+			{
+				plugin.homepage && (
+					<>
+						<dt>Homepage</dt>
+						<dd><a href={plugin.homepage} rel="noreferrer">GitHub ↗</a></dd>
+					</>
+				)
+			}
+		</dl>
+	</aside>
+</div>
+
+<script>
+	for (const button of document.querySelectorAll('[data-copy]')) {
+		button.addEventListener('click', async () => {
+			if (!(button instanceof HTMLButtonElement)) return;
+			await navigator.clipboard.writeText(button.dataset.copy ?? '');
+			const previous = button.textContent;
+			button.textContent = 'Copied';
+			window.setTimeout(() => {
+				button.textContent = previous;
+			}, 1200);
+		});
+	}
+</script>

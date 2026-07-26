@@ -1,0 +1,16 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import DeclarativeView from '../../components/DeclarativeView.astro';
+import { declarativeModules } from '../../data/declarative';
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Declarative modules',
+		description: 'Strict building blocks for declarative ohtools plugins.',
+		template: 'splash',
+		pagefind: true,
+	}}
+>
+	<DeclarativeView locale="en" modules={declarativeModules} />
+</StarlightPage>
