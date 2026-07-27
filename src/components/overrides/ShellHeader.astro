@@ -1,0 +1,44 @@
+---
+import config from "virtual:starlight/user-config";
+import LanguageSelect from "@astrojs/starlight/components/LanguageSelect.astro";
+import Search from "@astrojs/starlight/components/Search.astro";
+import SocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
+import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
+
+import catalogData from "../../generated/catalog.json";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const routeLocale = Astro.locals.starlightRoute.locale;
+const localePrefix = routeLocale === "ru" ? "/ru" : "";
+const home = `${base}${localePrefix}/`;
+const pathWithoutBase =
+  base && Astro.url.pathname.startsWith(base)
+    ? Astro.url.pathname.slice(base.length)
+    : Astro.url.pathname;
+const displayPath = pathWithoutBase.replace(/\/+$/, "") || "/";
+const shouldRenderSearch =
+  config.pagefind ||
+  config.components.Search !== "@astrojs/starlight/components/Search.astro";
+---
+
+<div class="shell-header" data-shell-header>
+  <a class="shell-identity" href={home} aria-label="ohtools home">
+    <span class="shell-identity-user">ohtools@docs</span><span
+      class="shell-identity-path">:{displayPath}</span
+    >
+  </a>
+
+  <div class="shell-runtime" aria-label="Catalog verification state">
+    <span class="status-dot" aria-hidden="true"></span>
+    <span>verified</span>
+    <span class="shell-runtime-separator">/</span>
+    <span>seq {catalogData.state.sequence}</span>
+  </div>
+
+  <div class="shell-header-tools print:hidden">
+    {shouldRenderSearch && <Search />}
+    <div class="shell-social"><SocialIcons /></div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
