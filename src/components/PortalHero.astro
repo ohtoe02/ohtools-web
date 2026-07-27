@@ -2,6 +2,7 @@
 import catalogData from '../generated/catalog.json';
 import { declarativeModules } from '../data/declarative';
 import type { Locale } from '../lib/catalog/catalog';
+import ShellPrompt from './ShellPrompt.astro';
 
 interface Props {
 	locale: Locale;
@@ -57,6 +58,14 @@ const isRussian = locale === 'ru';
 	</dl>
 </section>
 
+<ShellPrompt
+	locale={locale}
+	pluginCount={pluginCount}
+	moduleCount={moduleCount}
+	sequence={catalogData.state.sequence}
+	verifiedKey={catalogData.state.verified_key_id}
+/>
+
 <section class="portal-section" aria-labelledby="portal-map-heading">
 	<header class="portal-section-head">
 		<h2 id="portal-map-heading">{isRussian ? 'Один путь к истине.' : 'One path to truth.'}</h2>
@@ -104,4 +113,3 @@ const isRussian = locale === 'ru';
 		</a>
 	</div>
 </section>
-

@@ -14,7 +14,10 @@ export default defineConfig({
       "pnpm sync:catalog && pnpm astro build && pnpm exec sirv dist --host 127.0.0.1 --port 4321",
     url: "http://localhost:4321/",
     reuseExistingServer: !process.env.CI,
-    env: { OHTOOLS_CATALOG_BOOTSTRAP: "1" },
+    env: {
+      OHTOOLS_CATALOG_BOOTSTRAP: "1",
+      SITE_BASE: "/",
+    },
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },

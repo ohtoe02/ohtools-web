@@ -23,6 +23,10 @@ export default defineConfig({
           href: "https://github.com/ohtoe02/ohtools-web",
         },
       ],
+      components: {
+        Header: "./src/components/overrides/ShellHeader.astro",
+        PageTitle: "./src/components/overrides/ShellPageTitle.astro",
+      },
       customCss: ["./src/styles/custom.css"],
       sidebar: [
         {
@@ -41,7 +45,19 @@ export default defineConfig({
       head: [
         {
           tag: "meta",
-          attrs: { name: "theme-color", content: "#181a18" },
+          attrs: {
+            name: "theme-color",
+            content: "#070b08",
+            media: "(prefers-color-scheme: dark)",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "theme-color",
+            content: "#f6f2e7",
+            media: "(prefers-color-scheme: light)",
+          },
         },
         {
           tag: "meta",
