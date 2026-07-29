@@ -1,8 +1,8 @@
 dist/
 node_modules/
 src/generated/
+src/data/plugin-docs-bootstrap.json
 public/data/catalog-state.json
 test-results/
 playwright-report/
 .astro/
-

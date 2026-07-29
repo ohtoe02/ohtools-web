@@ -41,7 +41,7 @@ jobs:
         with:
           node-version: 24
           package-manager: pnpm@10.11.1
-          build-cmd: pnpm sync:catalog && pnpm astro build
+          build-cmd: pnpm sync:catalog && pnpm sync:plugin-docs && pnpm astro build
 
   deploy:
     needs: build

@@ -15,6 +15,7 @@ concurrency:
 env:
   ASTRO_TELEMETRY_DISABLED: "1"
   OHTOOLS_CATALOG_BOOTSTRAP: "1"
+  OHTOOLS_PLUGIN_DOCS_BOOTSTRAP: "1"
   SITE_BASE: /ohtools-web
 
 jobs:
@@ -39,6 +40,8 @@ jobs:
         run: pnpm test
       - name: Verify signed catalog
         run: pnpm sync:catalog
+      - name: Verify pinned plugin documentation
+        run: pnpm sync:plugin-docs
       - name: Build GitHub Pages artifact
         run: pnpm astro build
       - name: Verify generated routes and public state
