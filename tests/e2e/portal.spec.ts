@@ -156,6 +156,19 @@ test("renders detailed localized plugin documentation without upstream browser r
   ).toEqual([]);
 });
 
+test("does not emit browser console errors from the document policy", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+
+  await page.goto("/plugins/server-setup-base/");
+
+  expect(errors).toEqual([]);
+});
+
 test("serves the Russian module reference and passes critical accessibility checks", async ({
   page,
 }) => {
