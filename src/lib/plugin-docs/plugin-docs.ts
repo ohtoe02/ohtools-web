@@ -193,10 +193,66 @@ export function verifyPluginDocumentationBundle(
   };
 }
 
-export async function renderPluginMarkdown(markdown: string) {
+interface PluginMarkdownSource {
+  sourceCommit: string;
+  pluginId: string;
+  locale: "en" | "ru";
+}
+
+export async function renderPluginMarkdown(
+  markdown: string,
+  source?: PluginMarkdownSource,
+) {
   validateLocalizedMarkdown(markdown);
   const processor = await markdownProcessor;
-  return processor.render(markdown);
+  return processor.render(
+    source ? rewriteSourceLinks(markdown, source) : markdown,
+  );
+}
+
+function rewriteSourceLinks(
+  markdown: string,
+  source: PluginMarkdownSource,
+): string {
+  if (
+    !/^[0-9a-f]{40}$/.test(source.sourceCommit) ||
+    !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(source.pluginId) ||
+    (source.locale !== "en" && source.locale !== "ru")
+  ) {
+    throw new Error("invalid plugin documentation source coordinates");
+  }
+
+  const repositoryPath = `/ohtoe02/ohtools-plugins/blob/${source.sourceCommit}/`;
+  const sourceURL = new URL(
+    `https://github.com${repositoryPath}docs/plugins/${source.locale}/${source.pluginId}.md`,
+  );
+  let inFence = false;
+  return markdown
+    .split(/\r?\n/)
+    .map((rawLine) => {
+      if (rawLine.trim().startsWith("```")) {
+        inFence = !inFence;
+        return rawLine;
+      }
+      if (inFence) return rawLine;
+      return rawLine.replace(
+        /\]\(((?:\.{1,2}\/)[^)\s]+)\)/g,
+        (_, target: string) => {
+          const resolved = new URL(target, sourceURL);
+          if (
+            resolved.protocol !== "https:" ||
+            resolved.hostname !== "github.com" ||
+            !resolved.pathname.startsWith(repositoryPath)
+          ) {
+            throw new Error(
+              "plugin documentation source link escapes its repository",
+            );
+          }
+          return `](${resolved.toString()})`;
+        },
+      );
+    })
+    .join("\n");
 }
 
 function validateLocalOnly(plugin: PluginDocumentationV1): void {

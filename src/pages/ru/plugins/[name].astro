@@ -14,13 +14,16 @@ export function getStaticPaths() {
       documentation: (pluginDocsData as VerifiedPluginDocumentation).plugins[
         plugin.name
       ],
+      sourceCommit: (pluginDocsData as VerifiedPluginDocumentation)
+        .sourceCommit,
     },
   }));
 }
 
-const { plugin, documentation } = Astro.props as {
+const { plugin, documentation, sourceCommit } = Astro.props as {
   plugin: CatalogPluginView;
   documentation: VerifiedPluginDocumentation["plugins"][string];
+  sourceCommit: string;
 };
 ---
 
@@ -32,5 +35,10 @@ const { plugin, documentation } = Astro.props as {
     pagefind: true,
   }}
 >
-  <PluginDetail locale="ru" plugin={plugin} documentation={documentation} />
+  <PluginDetail
+    locale="ru"
+    plugin={plugin}
+    documentation={documentation}
+    sourceCommit={sourceCommit}
+  />
 </StarlightPage>

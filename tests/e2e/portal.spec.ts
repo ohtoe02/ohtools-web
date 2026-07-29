@@ -135,6 +135,12 @@ test("renders detailed localized plugin documentation without upstream browser r
     page.getByRole("navigation", { name: "Documentation contents" }),
   ).toContainText("Troubleshooting");
   await expect(
+    page.getByRole("link", { name: "server setup roadmap" }),
+  ).toHaveAttribute(
+    "href",
+    /github\.com\/ohtoe02\/ohtools-plugins\/blob\/[0-9a-f]{40}\/docs\/roadmap\/server-setup-base\.md/,
+  );
+  await expect(
     page.locator(".plugin-documentation .copy-button").first(),
   ).toBeVisible();
   expect(requests.some((url) => url.includes("plugin-docs-v1.json"))).toBe(

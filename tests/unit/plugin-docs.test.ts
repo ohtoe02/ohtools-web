@@ -230,11 +230,19 @@ describe("verifyPluginDocumentationBundle", () => {
 describe("renderPluginMarkdown", () => {
   test("renders headings, links, and code without executable HTML", async () => {
     const result = await renderPluginMarkdown(
-      "## Quick start\n\nRun `ohtools system info`.\n\n```text\nohtools system info\n```\n",
+      "## Quick start\n\nRun `ohtools system info`.\n\nSee the [roadmap](../../roadmap/system-base.md).\n\n```text\nohtools system info\n```\n",
+      {
+        sourceCommit: "b".repeat(40),
+        pluginId: "system-base",
+        locale: "en",
+      },
     );
 
     expect(result.code).toContain('id="quick-start"');
     expect(result.code).toContain("<code>ohtools system info</code>");
+    expect(result.code).toContain(
+      `href="https://github.com/ohtoe02/ohtools-plugins/blob/${"b".repeat(40)}/docs/roadmap/system-base.md"`,
+    );
     expect(result.code).not.toContain("<script");
   });
 });

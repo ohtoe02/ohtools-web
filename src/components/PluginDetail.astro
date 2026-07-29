@@ -9,9 +9,10 @@ interface Props {
   locale: Locale;
   plugin: CatalogPluginView;
   documentation: PluginDocumentationV1;
+  sourceCommit: string;
 }
 
-const { locale, plugin, documentation } = Astro.props;
+const { locale, plugin, documentation, sourceCommit } = Astro.props;
 const isRussian = locale === "ru";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const localePrefix = isRussian ? "/ru" : "";
@@ -24,6 +25,11 @@ const latest = plugin.latest;
 const localizedDocumentation = documentation.locales[locale];
 const renderedDocumentation = await renderPluginMarkdown(
   localizedDocumentation.markdown,
+  {
+    sourceCommit,
+    pluginId: plugin.name,
+    locale,
+  },
 );
 const documentationHeadings = (
   renderedDocumentation.metadata.headings ?? []
