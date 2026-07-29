@@ -16,6 +16,12 @@ export interface UpstreamConfig {
     schemaId: string;
     schemaSha256: string | null;
   };
+  pluginDocs: {
+    bundleUrl: string | null;
+    bundleSha256: string | null;
+    allowedHosts: string[];
+    maxBytes: number;
+  };
 }
 
 export const upstreamConfig: UpstreamConfig = {
@@ -34,9 +40,9 @@ export const upstreamConfig: UpstreamConfig = {
     ],
     maxIndexBytes: 5 * 1024 * 1024,
     maxSignatureBytes: 64 * 1024,
-    minimumSequence: 3,
+    minimumSequence: 4,
     bootstrapDigest:
-      "dd045ca051375bbbad37de0684cc32cd0ae83334d90f76f7d11a265ddda600ed",
+      "7a50b81320c6e3739689e49a4db60ee2e0f44fdc09943493e233be9c7f16a873",
     trustedKeys: {
       "8da7e19e8cff6c33": "8jW7I5G75M8Bgv+lfDZxBRB6Z6ycGXpxhUbekVppugk=",
     },
@@ -46,5 +52,15 @@ export const upstreamConfig: UpstreamConfig = {
     schemaUrl: null,
     schemaId: "https://ohtools.dev/schema/declarative/v1",
     schemaSha256: null,
+  },
+  pluginDocs: {
+    bundleUrl: null,
+    bundleSha256: null,
+    allowedHosts: [
+      "github.com",
+      "release-assets.githubusercontent.com",
+      "objects.githubusercontent.com",
+    ],
+    maxBytes: 5 * 1024 * 1024,
   },
 };
