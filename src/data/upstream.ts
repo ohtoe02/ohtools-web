@@ -54,8 +54,10 @@ export const upstreamConfig: UpstreamConfig = {
     schemaSha256: null,
   },
   pluginDocs: {
-    bundleUrl: null,
-    bundleSha256: null,
+    bundleUrl:
+      "https://github.com/ohtoe02/ohtools-plugins/releases/download/plugin-docs-v1.0.0/plugin-docs-v1.json",
+    bundleSha256:
+      "10c281f07f3c0b80da282370d673cc929a397eec5cab90f0b03ad5044e170622",
     allowedHosts: [
       "github.com",
       "release-assets.githubusercontent.com",
