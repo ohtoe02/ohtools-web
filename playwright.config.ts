@@ -11,11 +11,12 @@ export default defineConfig({
   },
   webServer: {
     command:
-      "pnpm sync:catalog && pnpm astro build && pnpm exec sirv dist --host 127.0.0.1 --port 4321",
+      "pnpm sync:catalog && pnpm sync:plugin-docs && pnpm astro build && pnpm exec sirv dist --host 127.0.0.1 --port 4321",
     url: "http://localhost:4321/",
     reuseExistingServer: !process.env.CI,
     env: {
       OHTOOLS_CATALOG_BOOTSTRAP: "1",
+      OHTOOLS_PLUGIN_DOCS_BOOTSTRAP: "1",
       SITE_BASE: "/",
     },
   },

@@ -8,9 +8,9 @@ test("presents the verified portal entry points", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /operations without guesswork/i }),
   ).toBeVisible();
-  await expect(page.getByText(/catalog sequence 3/i)).toBeVisible();
+  await expect(page.getByText(/catalog sequence 4/i)).toBeVisible();
   await expect(
-    page.getByRole("link", { name: /browse 4 plugins/i }),
+    page.getByRole("link", { name: /browse 18 plugins/i }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: /explore 8 modules/i }),
@@ -112,6 +112,48 @@ test("filters the signed catalog without browser network access", async ({
   expect(requests.some((url) => url.includes("ohtools-plugin-catalog"))).toBe(
     false,
   );
+});
+
+test("renders detailed localized plugin documentation without upstream browser requests", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(request.url()));
+  await page.goto("/plugins/server-setup-base/");
+
+  await expect(
+    page.getByRole("heading", { name: "Server setup base" }),
+  ).toBeVisible();
+  await expect(page.getByText("Local-only", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Configuration" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("managed_file_limit_bytes").first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Documentation contents" }),
+  ).toContainText("Troubleshooting");
+  await expect(
+    page.locator(".plugin-documentation .copy-button").first(),
+  ).toBeVisible();
+  expect(requests.some((url) => url.includes("plugin-docs-v1.json"))).toBe(
+    false,
+  );
+
+  await page.goto("/ru/plugins/server-setup-base/");
+  await expect(
+    page.getByRole("heading", { name: "Базовая настройка сервера" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Только локально", { exact: true }),
+  ).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(
+    results.violations.filter((violation) =>
+      ["critical", "serious"].includes(violation.impact ?? ""),
+    ),
+  ).toEqual([]);
 });
 
 test("serves the Russian module reference and passes critical accessibility checks", async ({
