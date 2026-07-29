@@ -814,7 +814,7 @@ h2::before {
 
 .detail-aside dt {
   margin-top: 1rem;
-  color: var(--terminal-dim);
+  color: var(--terminal-muted);
   font-size: 0.64rem;
   text-transform: uppercase;
 }
@@ -823,6 +823,51 @@ h2::before {
   margin: 0.2rem 0 0;
   overflow-wrap: anywhere;
   font-size: 0.78rem;
+}
+
+.plugin-documentation {
+  margin-top: 2.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--terminal-border);
+}
+
+.plugin-documentation h1 {
+  color: var(--terminal-green-soft);
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+.plugin-documentation h2 {
+  scroll-margin-top: 5rem;
+}
+
+.plugin-documentation-toc {
+  margin: 1rem 0 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.plugin-documentation-toc strong {
+  color: var(--terminal-green);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.plugin-documentation-toc ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plugin-documentation-toc a {
+  color: var(--terminal-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.plugin-documentation-toc a:hover {
+  color: var(--terminal-green-soft);
 }
 
 .field-table,
@@ -852,7 +897,7 @@ h2::before {
 .version-table th,
 .command-table th {
   background: var(--terminal-panel-raised);
-  color: var(--terminal-dim);
+  color: var(--terminal-muted);
   font-size: 0.62rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;

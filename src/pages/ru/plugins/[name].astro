@@ -1,26 +1,36 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import PluginDetail from '../../../components/PluginDetail.astro';
-import catalogData from '../../../generated/catalog.json';
-import type { CatalogPluginView } from '../../../lib/catalog/catalog';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import PluginDetail from "../../../components/PluginDetail.astro";
+import catalogData from "../../../generated/catalog.json";
+import pluginDocsData from "../../../generated/plugin-docs.json";
+import type { CatalogPluginView } from "../../../lib/catalog/catalog";
+import type { VerifiedPluginDocumentation } from "../../../lib/plugin-docs/plugin-docs";
 
 export function getStaticPaths() {
-	return (catalogData.plugins as CatalogPluginView[]).map((plugin) => ({
-		params: { name: plugin.name },
-		props: { plugin },
-	}));
+  return (catalogData.plugins as CatalogPluginView[]).map((plugin) => ({
+    params: { name: plugin.name },
+    props: {
+      plugin,
+      documentation: (pluginDocsData as VerifiedPluginDocumentation).plugins[
+        plugin.name
+      ],
+    },
+  }));
 }
 
-const { plugin } = Astro.props as { plugin: CatalogPluginView };
+const { plugin, documentation } = Astro.props as {
+  plugin: CatalogPluginView;
+  documentation: VerifiedPluginDocumentation["plugins"][string];
+};
 ---
 
 <StarlightPage
-	frontmatter={{
-		title: plugin.name,
-		description: plugin.description,
-		template: 'splash',
-		pagefind: true,
-	}}
+  frontmatter={{
+    title: plugin.name,
+    description: plugin.description,
+    template: "splash",
+    pagefind: true,
+  }}
 >
-	<PluginDetail locale="ru" plugin={plugin} />
+  <PluginDetail locale="ru" plugin={plugin} documentation={documentation} />
 </StarlightPage>
